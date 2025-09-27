@@ -171,6 +171,20 @@ thv rm fetch
 
 # CLI
 
+
+
+
+
+
+<br><br>
+
+
+
+
+
+
+
+
 ## MCP Servers
 
 ### Run
@@ -503,5 +517,207 @@ thv run --from-config ./config.json
 
 </details>
 
+
+
+
+
+
+
+
+
+
+
+<br><br>
+
+---
+
+<br><br>
+
+
+
+## Secrets management
+- https://docs.stacklok.com/toolhive/guides-cli/secrets-management
+- 
+MCP servers often need secrets like API tokens, connection strings, and other sensitive parameters. ToolHive provides built-in secrets management features, letting you manage these values securely without exposing them in plaintext configuration files.
+
+
+<details><summary>Click to expand..</summary>
+
+
+## Secrets providers
+
+ToolHive supports multiple secrets providers to fit different security and workflow requirements:
+
+- **encrypted** – ToolHive encrypts secrets using a password stored in your operating system's keyring  
+- **1password** – ToolHive retrieves secrets from a 1Password vault  
+
+You can use only one provider at a time. To select your preferred provider, run:
+
+```sh
+thv secret setup
+````
+
+If you plan to use 1Password, first set up a 1Password service account and obtain an API token. See the 1Password tab below for details.
+
+### Encrypted
+
+When you select the encrypted provider, ToolHive prompts you to create an encryption password that protects your secrets.
+
+ToolHive stores this encryption password in your operating system's keyring (Keychain Access on macOS, Credential Manager on Windows, and dbus/Gnome Keyring on Linux). This means you don't need to enter the password every time you use a `thv secret` command.
+
+---
+
+## Manage secrets
+
+### Create or update a secret
+
+The `thv secret set` command lets you create or update a secret in your secret store. You can set a secret interactively by running:
+
+```sh
+thv secret set <SECRET_NAME>
+```
+
+ToolHive prompts you to enter the secret value, and the input remains hidden for security.
+
+**Example:**
+
+```sh
+thv secret set github
+# Enter your GitHub personal access token when prompted
+```
+
+Alternatively, you can set a secret using standard input:
+
+```sh
+echo "MY_SECRET_VALUE" | thv secret set <SECRET_NAME>
+```
+
+**Example:**
+
+Create a secret named `github` and set its value to your GitHub authentication token using the GitHub CLI:
+
+```sh
+gh auth token | thv secret set github
+```
+
+---
+
+### List and view secrets
+
+To list the names of all secrets in your secret store without revealing their values:
+
+```sh
+thv secret list
+```
+
+To decrypt and view a secret's value:
+
+```sh
+thv secret get <SECRET_NAME>
+```
+
+---
+
+### Remove a secret
+
+To delete a secret when it's no longer needed:
+
+```sh
+thv secret delete <SECRET_NAME>
+```
+
+---
+
+### Reset your secret store
+
+ToolHive doesn't currently support changing the encryption password. If you need to reset your secret store, delete the encrypted secrets file and recreate your secrets.
+
+First, remove the encryption password from the keyring:
+
+```sh
+thv secret reset-keyring
+```
+
+Then, delete the encrypted secrets file:
+
+* **macOS / Linux / Windows**
+
+```sh
+rm ~/Library/Application\ Support/toolhive/secrets_encrypted
+```
+
+The next time you run a `thv secret` command, ToolHive prompts you to create a new encryption password and starts with a fresh secret store.
+
+---
+
+## Use secrets with MCP servers
+
+ToolHive can securely pass secrets to an MCP server when you run it. This lets the server access sensitive information without exposing it in plaintext.
+
+To do this, use the `--secret` flag with the `thv run` command. The secret value is injected into the container as an environment variable.
+
+```sh
+thv run --secret <SECRET_NAME>,target=<ENV_VAR_NAME> <SERVER>
+```
+
+Check the MCP server's documentation to find the expected environment variable names. For example, the GitHub MCP server expects the GitHub token to be passed as `GITHUB_PERSONAL_ACCESS_TOKEN`.
+
+For MCP servers in the ToolHive registry, you can find the expected environment variable names in the server's registry entry:
+
+```sh
+thv registry info <SERVER_NAME>
+```
+
+---
+
+### Example: GitHub API token
+
+This example shows how to set up a GitHub authentication token and use it with the GitHub MCP server:
+
+1. Set the secret:
+
+   ```sh
+   thv secret set github
+   # Enter your GitHub personal access token when prompted
+   ```
+
+2. Run the GitHub MCP server with the token:
+
+   ```sh
+   thv run --secret github,target=GITHUB_PERSONAL_ACCESS_TOKEN github
+   ```
+
+The GitHub MCP server now has access to your GitHub token and can make authenticated API requests.
+
+---
+
+### Example: Multiple secrets
+
+You can provide multiple secrets to a server by using the `--secret` flag multiple times:
+
+```sh
+thv run \
+  --secret github,target=GITHUB_TOKEN \
+  --secret openai,target=OPENAI_API_KEY \
+  multi-api-server
+```
+
+---
+
+### Example: 1Password secret
+
+To use a secret from 1Password with an MCP server, set the `OP_SERVICE_ACCOUNT_TOKEN` environment variable with your 1Password service account API token and reference the secret using the `op://` URI format.
+
+```sh
+OP_SERVICE_ACCOUNT_TOKEN=<your-service-account-token> thv run \
+  --secret op://MCPVault/slackbot/token,target=SLACK_BOT_TOKEN \
+  --secret op://MCPVault/slackbot/team_id,target=SLACK_TEAM_ID \
+  slack
+```
+
+This command retrieves the `token` and `team_id` fields from the `slackbot` item in the `MCPVault` vault and passes them to the Slack MCP server as the `SLACK_BOT_TOKEN` and `SLACK_TEAM_ID` environment variables.
+
+
+</details>
 
 

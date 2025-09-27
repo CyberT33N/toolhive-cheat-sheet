@@ -1,9 +1,7 @@
 # toolhive-cheat-sheet
-
-
-# toolhive
 - https://github.com/stacklok/toolhive?tab=readme-ov-file
-- https://github.com/CyberT33N/homebrew-cheat-sheet/tree/main#install
+
+
 
 ## Install
 

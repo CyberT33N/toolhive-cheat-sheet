@@ -5,12 +5,28 @@
 
 ## Install
 
+### Desktop App
+
+#### Windows
+- https://github.com/stacklok/toolhive-studio/releases/latest/download/ToolHive.Setup.exe
+  - Donwload the installer most easy 
+
+
+<br><br>
+
+
+
+
+
 ### CLI
 - https://docs.stacklok.com/toolhive/tutorials/quickstart-cli?installer=homebrew
 
 <details><summary>Click to expand..</summary>
 
 1. Install
+
+
+Ubuntu
 ```shell
 brew tap stacklok/tap
 brew install thv
@@ -18,6 +34,8 @@ brew install thv
 # Verify your installation
 thv version
 ```
+
+
 
 If you get `Error: Broken pipe`
 

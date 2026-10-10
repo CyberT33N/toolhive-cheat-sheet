@@ -11,6 +11,10 @@
 - https://github.com/stacklok/toolhive-studio/releases/latest/download/ToolHive.Setup.exe
   - Donwload the installer most easy 
 
+#### Linux
+https://github.com/stacklok/toolhive-studio/releases
+
+
 
 <br><br>
 
